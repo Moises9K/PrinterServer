@@ -1,0 +1,80 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #ffffff; /* White background */
+    color: #333; /* Default text color */
+}
+
+/* Centering container */
+.hero-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+    min-height: 100vh; /* Take up full viewport height */
+    text-align: center; /* Ensure text within elements is centered */
+    padding: 20px; /* Add some padding for smaller screens */
+}
+
+.main-title {
+    font-size: 2.5rem; /* Default size */
+    font-weight: 700;
+    color: #1266f1; /* MDB Primary Blue */
+    margin-bottom: 1.5rem; /* Space below title */
+}
+
+.main-container{
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+.main-container h2{
+    font-size: 25pt;
+    font-weight: 600;
+    color: #1266f1;
+}
+.main-container h3{
+    font-size: 20pt;
+    font-weight: 500;
+}
+
+.main-container .col-12.text-center .form-check{
+    display: flex;
+    align-items: center;
+    justify-content:center;
+    margin-bottom: 0.5rem;
+}
+
+.main-button {
+    font-size: 1.1rem;
+    padding: 0.8rem 2.5rem; /* Larger padding for a prominent button */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+#hola{
+    display: flex; /* Make it a flex container */
+    flex-wrap: wrap; /* Allow images to wrap to the next line if they don't fit */
+    justify-content: center; /* Center items horizontally */
+    align-items: center; /* Center items vertically (if they have different heights or #hola has a set height) */
+    gap: 10px; /* Adds space between the images (modern alternative to margins on items) */
+    padding: 10px; /* Optional: Add some padding inside the container */
+    min-height: 100px; /* Optional: Give it a minimum height so it's visible even when empty */
+    border: 1px dashed #ccc; /* Optional: Just to visualize the container */
+    margin-top: 1rem; /* Add some space above the preview area */
+    margin-bottom: 1rem; /* Add some space below the preview area */
+}
+
+/* Responsive adjustments for the title */
+@media (min-width: 768px) {
+    .main-title {
+        font-size: 3.5rem; /* Larger on medium screens and up */
+    }
+}
+@media (min-width: 992px) {
+    .main-title {
+        font-size: 4.5rem; /* Even larger on large screens */
+    }
+}
+
+/* Optional: Subtle background gradient for a more modern feel if desired */
+/* body {
+    background: linear-gradient(135deg, #eef7ff 0%, #ffffff 100%);
+} */
