@@ -42,7 +42,7 @@ public class ImpresoraController {
         }
         else{
             redirectAttributes.addFlashAttribute("errorMessage","Error al imprimir");
-         m   return "redirect:/impresora/imprimir";
+            return "redirect:/impresora/imprimir";
         }
     }
 
