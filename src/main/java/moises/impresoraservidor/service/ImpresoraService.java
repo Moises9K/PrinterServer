@@ -1,6 +1,7 @@
 package moises.impresoraservidor.service;
 
 
+import moises.impresoraservidor.constant.PageSize;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -21,6 +22,7 @@ import java.awt.print.PrinterJob;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class ImpresoraService {
@@ -28,18 +30,22 @@ public class ImpresoraService {
     @Autowired
     ValidatorService validatorService;
 
-    public void imprimir(MultipartFile[] files) {
-        if (validatorService.validateEveryFileImage(files)){
-            printImage(files);
+    public boolean imprimir(MultipartFile[] files) {
+        if (!validatorService.validateEveryFileImage(files)){
+            return false;
         }
+        return printImage(files);
 
     }
 
-    private void printImage(MultipartFile[] files) {
+    private boolean printImage(MultipartFile[] files) {
         //scalate image
         // posicionate in a A4 PAGE if its only one image
+        boolean success = false;
+
         if(files.length == 0 || files[0].isEmpty()){
             System.out.println("Error al imprimir imagen");
+            return success;
         }
         else if (files.length == 1){
             try(PDDocument doc = new PDDocument()){
@@ -55,13 +61,13 @@ public class ImpresoraService {
                 float coordenadasCentroY = 420.9f;
 
                 contentStream.drawImage(pdImage, coordenadasCentroX, coordenadasCentroY);
-                File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[0].getOriginalFilename() + ".pdf" );
+                File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[0].getOriginalFilename() + UUID.randomUUID() + ".pdf" );
                 doc.save(archivo);
-
-                PrintService printService = PrintServiceLookup.lookupDefaultPrintService();
+                success = true;
+                /*PrintService printService = PrintServiceLookup.lookupDefaultPrintService();
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPageable(new PDFPageable(doc));
-                printerJob.print();
+                printerJob.print();*/
 
             }
             catch(Exception e){
@@ -74,22 +80,34 @@ public class ImpresoraService {
                 PDPage pagina = new PDPage(PDRectangle.A4);
                 pdDocument.addPage(pagina);
 
-                for (MultipartFile file: files){
-                    BufferedImage image = ImageIO.read(file.getInputStream());
+                for (int i = 0; i<files.length; i++){
+                    BufferedImage image = ImageIO.read(files[i].getInputStream());
                     BufferedImage resizedimage = Scalr.resize(image,Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_WIDTH,300);
 
-                    PDImageXObject pdfImage = PDImageXObject.createFromByteArray(pdDocument,toByteArray(resizedimage),"imagen");
+                    PDImageXObject pdfImage = PDImageXObject.createFromByteArray(pdDocument,toByteArray(resizedimage),"imagen " + i);
                     PDPageContentStream contentStream = new PDPageContentStream(pdDocument,pagina, PDPageContentStream.AppendMode.APPEND, true, true);
-
-
+                    float topmargen = 100f;
+                    float coordenadasCentroX = PageSize.A4_WIDTH / 2;
+                    float coordenadasTopCentroY = PageSize.A4_HEIGHT - topmargen;
+                    float coordenadasBottomCentroY = 0 + topmargen;
+                    if(i == 0){
+                        contentStream.drawImage(pdfImage, coordenadasCentroX, coordenadasTopCentroY);
+                    }
+                    else {
+                        contentStream.drawImage(pdfImage, coordenadasCentroX, coordenadasBottomCentroY);
+                        File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[1].getOriginalFilename() + UUID.randomUUID() + ".pdf" );
+                        pdDocument.save(archivo);
+                        success = true;
+                    }
                 }
+
 
             }catch (IOException e){
                 System.out.println(e.getMessage());
             }
 
         }
-
+        return success;
     }
 
     private static byte[] toByteArray(BufferedImage image) {
