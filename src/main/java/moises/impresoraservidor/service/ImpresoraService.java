@@ -31,9 +31,6 @@ public class ImpresoraService {
     ValidatorService validatorService;
 
     public boolean imprimir(MultipartFile[] files) {
-        if (!validatorService.validateEveryFileImage(files)){
-            return false;
-        }
         return printImage(files);
 
     }
@@ -56,11 +53,13 @@ public class ImpresoraService {
                 doc.addPage(page);
 
                 PDImageXObject pdImage = PDImageXObject.createFromByteArray(doc,toByteArray(resizedimage),"imagen");
-                PDPageContentStream contentStream = new PDPageContentStream(doc,page, PDPageContentStream.AppendMode.APPEND, true, true);
-                float coordenadasCentroX = 207.6f;
-                float coordenadasCentroY = 420.9f;
+               try (PDPageContentStream contentStream = new PDPageContentStream(doc,page, PDPageContentStream.AppendMode.APPEND, true, true)){
+                   float coordenadasCentroX = 207.6f;
+                   float coordenadasCentroY = 420.9f;
 
-                contentStream.drawImage(pdImage, coordenadasCentroX, coordenadasCentroY);
+                   contentStream.drawImage(pdImage, coordenadasCentroX, coordenadasCentroY);
+
+               };
                 File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[0].getOriginalFilename() + UUID.randomUUID() + ".pdf" );
                 doc.save(archivo);
                 success = true;
@@ -79,6 +78,8 @@ public class ImpresoraService {
             try(PDDocument pdDocument = new PDDocument()){
                 PDPage pagina = new PDPage(PDRectangle.A4);
                 pdDocument.addPage(pagina);
+
+
 
                 for (int i = 0; i<files.length; i++){
                     BufferedImage image = ImageIO.read(files[i].getInputStream());
