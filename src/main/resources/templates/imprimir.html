@@ -27,7 +27,7 @@
             <span th:text="${errorMessage}"></span>
             <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
         </div>
-        <form action="#" method="post" enctype="multipart/form-data">
+        <form th:action="@{/impresora/archivos}" method="post" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-12 text-center">
                     <h2 class="mb-4">Realizar Impresion</h2>
