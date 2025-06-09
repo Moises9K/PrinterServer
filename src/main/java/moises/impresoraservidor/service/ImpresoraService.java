@@ -38,13 +38,57 @@ public class ImpresoraService {
     private boolean printImage(MultipartFile[] files) {
         //scalate image
         // posicionate in a A4 PAGE if its only one image
-        boolean success = false;
 
         if(files.length == 0 || files[0].isEmpty()){
             System.out.println("Error al imprimir imagen");
-            return success;
+            return false;
         }
-        else if (files.length == 1){
+
+        try(PDDocument doc = new PDDocument()){
+            PDPage page = new PDPage(PDRectangle.A4);
+            doc.addPage(page);
+
+            try(PDPageContentStream contentStream = new PDPageContentStream(doc,page)){
+                if(files.length == 1){
+                    BufferedImage image = ImageIO.read(files[0].getInputStream());
+                    BufferedImage resizedimage = Scalr.resize(image,Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_WIDTH,300);
+                    PDImageXObject pdImage = PDImageXObject.createFromByteArray(doc,toByteArray(resizedimage),"imagen");
+                    float x = (PDRectangle.A4.getWidth() - pdImage.getWidth()) / 2;
+                    float y = (PDRectangle.A4.getHeight() - pdImage.getHeight()) / 2;
+                    contentStream.drawImage(pdImage, x, y);
+
+                }
+                else if (files.length == 2) {
+                    BufferedImage image1 = ImageIO.read(files[0].getInputStream());
+                    BufferedImage resizedImage1 = Scalr.resize(image1, Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_WIDTH, 300);
+                    PDImageXObject pdImage1 = PDImageXObject.createFromByteArray(doc, toByteArray(resizedImage1), "imagen 1");
+
+                    float x1 = (PDRectangle.A4.getWidth() - pdImage1.getWidth()) / 2;
+                    float y1 = PDRectangle.A4.getHeight() - pdImage1.getHeight() - 100;
+                    contentStream.drawImage(pdImage1, x1, y1);
+
+                    BufferedImage image2 = ImageIO.read(files[1].getInputStream());
+                    BufferedImage resizedImage2 = Scalr.resize(image2, Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_WIDTH, 400);
+                    PDImageXObject pdImage2 = PDImageXObject.createFromByteArray(doc, toByteArray(resizedImage2), "imagen 2");
+
+                    float x2 = (PDRectangle.A4.getWidth() - pdImage2.getWidth()) / 2;
+                    float y2 = 100;
+                    contentStream.drawImage(pdImage2, x2, y2);
+
+                }
+            }
+            File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[0].getOriginalFilename() + UUID.randomUUID() + ".pdf" );
+            doc.save(archivo);
+            return true;
+        } catch (IOException e) {
+            System.out.println("Error al crear el PDF : " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+        /*else if (files.length == 1){
             try(PDDocument doc = new PDDocument()){
 
                 BufferedImage image = ImageIO.read(files[0].getInputStream());
@@ -63,10 +107,10 @@ public class ImpresoraService {
                 File archivo = new File("D:\\Projectos pr\\JAVA\\ImpresoraServidor\\src\\main\\java\\moises\\impresoraservidor\\pdf\\" + files[0].getOriginalFilename() + UUID.randomUUID() + ".pdf" );
                 doc.save(archivo);
                 success = true;
-                /*PrintService printService = PrintServiceLookup.lookupDefaultPrintService();
+                PrintService printService = PrintServiceLookup.lookupDefaultPrintService();
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPageable(new PDFPageable(doc));
-                printerJob.print();*/
+                printerJob.print();
 
             }
             catch(Exception e){
@@ -78,8 +122,6 @@ public class ImpresoraService {
             try(PDDocument pdDocument = new PDDocument()){
                 PDPage pagina = new PDPage(PDRectangle.A4);
                 pdDocument.addPage(pagina);
-
-
 
                 for (int i = 0; i<files.length; i++){
                     BufferedImage image = ImageIO.read(files[i].getInputStream());
@@ -109,7 +151,7 @@ public class ImpresoraService {
 
         }
         return success;
-    }
+    }*/
 
     private static byte[] toByteArray(BufferedImage image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
